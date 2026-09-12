@@ -1,762 +1,402 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BENCHMARK — honest AI model scores</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
-  <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BENCHMARK — honest AI model scores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
 :root {
-  --ground: #06070a; --plate: #0b0d12; --line: #1a1f28;
-  --ink: #e2eaf1; --ink-dim: #9dabb7; --ink-faint: #75828d;
-  --cyan: #7deaff; --amber: #f0bc5f; --live: #6fdca6; --red: #ff8b7a; --violet: #c4a7ff;
-  --serif: "Instrument Serif", Georgia, serif;
-  --sans: "Archivo", system-ui, sans-serif;
-  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  --bg: #06070a; --plate: #0b0d12; --line: #1a1f28;
+  --ink: #e2eaf1; --dim: #9dabb7; --faint: #75828d;
+  --cyan: #7deaff; --amber: #f0bc5f; --green: #6fdca6; --red: #ff8b7a; --violet: #c4a7ff;
+  --f-serif: "Instrument Serif", Georgia, serif;
+  --f-sans: "Archivo", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
-*,*::before,*::after{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
-a{color:var(--cyan);text-decoration:none;border-bottom:1px solid #1d4653}
-a:hover{border-bottom-color:var(--cyan)}
-:focus-visible{outline:2px solid var(--cyan);outline-offset:3px}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-sans); font-size: 15px; line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+a { color: var(--cyan); text-decoration: none; }
 
-header{
-  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
-  padding:11px 24px;border-bottom:1px solid var(--line);
-  background:var(--plate);position:sticky;top:0;z-index:20;
+/* NAV */
+nav {
+  display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  padding: 11px 20px; border-bottom: 1px solid var(--line);
+  background: var(--plate); position: sticky; top: 0; z-index: 20;
 }
-header h1{font-family:var(--serif);font-weight:400;font-size:22px;margin:0;color:#eaf4fa;letter-spacing:.01em}
-header .sub{font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint)}
-header .grow{flex:1}
-header .pill{
-  display:inline-flex;align-items:center;gap:7px;
-  font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  border:1px solid var(--line);border-radius:999px;padding:4px 12px;
-  color:var(--amber);border-color:#3d3420;
+.nav-title { font-family: var(--f-serif); font-weight: 400; font-size: 20px; color: #eaf4fa; }
+.nav-sub { font-family: var(--f-mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--faint); }
+.spacer { flex: 1; }
+.chip {
+  font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .09em; text-transform: uppercase;
+  border: 1px solid #3d3420; border-radius: 999px; padding: 4px 11px; color: var(--amber);
 }
 
-.wrap{max-width:1280px;margin:0 auto;padding:0 24px}
+/* HERO */
+.hero { padding: 48px 20px 40px; border-bottom: 1px solid var(--line); max-width: 900px; margin: 0 auto; }
+.eyebrow { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--cyan); margin-bottom: 10px; }
+.hero h1 { font-family: var(--f-serif); font-weight: 400; font-size: clamp(28px, 5vw, 46px); line-height: 1.1; color: #eaf4fa; margin-bottom: 10px; }
+.hero p { color: var(--dim); font-size: 16px; max-width: 56ch; }
 
-.hero{
-  padding:52px 0 42px;border-bottom:1px solid var(--line);
+/* CONTROLS */
+.controls { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 20px; border-bottom: 1px solid var(--line); background: var(--plate); align-items: center; }
+.controls .label { font-family: var(--f-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--faint); margin-right: 4px; }
+button {
+  font-family: var(--f-mono); font-size: 11.5px; cursor: pointer;
+  padding: 6px 13px; border-radius: 6px; border: 1px solid var(--line);
+  background: transparent; color: var(--dim);
+  transition: color .15s, border-color .15s, background .15s;
 }
-.hero h2{
-  font-family:var(--serif);font-weight:400;
-  font-size:clamp(28px,5vw,46px);line-height:1.1;
-  margin:0 0 10px;color:#eaf4fa;
+button:hover { color: var(--ink); border-color: var(--dim); }
+button.on { background: #0d2a35; color: var(--cyan); border-color: var(--cyan); }
+
+/* TABLE */
+.table-scroll { overflow-x: auto; padding: 0 20px 32px; }
+table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+thead th {
+  text-align: left; padding: 8px 12px; white-space: nowrap; cursor: pointer;
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--faint); border-bottom: 1px solid var(--line); user-select: none;
 }
-.hero .lede{color:var(--ink-dim);max-width:58ch;margin:0;font-size:17px}
-.hero .pill{color:var(--amber)}
-
-.eyebrow{
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;
-  text-transform:uppercase;color:var(--cyan);margin-bottom:8px;display:block;
+thead th:hover { color: var(--cyan); }
+thead th.sorted { color: var(--cyan); }
+thead th.r { text-align: right; }
+tbody td {
+  padding: 10px 12px; border-bottom: 1px solid #0f1318;
+  font-size: 13.5px; vertical-align: middle;
 }
-.k{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-faint);font-weight:500}
-
-section{padding:44px 0;border-bottom:1px solid var(--line)}
-
-.bar{
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  padding:12px 16px;background:var(--plate);border:1px solid var(--line);
-  border-radius:10px;margin-bottom:1px;
+tbody td.r { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; color: var(--dim); }
+tbody tr:hover td { background: #0c1117; }
+.model-name { font-weight: 600; color: var(--ink); }
+.vendor-tag {
+  display: inline-block; font-family: var(--f-mono); font-size: 10px;
+  letter-spacing: .09em; text-transform: uppercase;
+  border-radius: 4px; padding: 2px 7px; border: 1px solid;
 }
-.bar h3{font-family:var(--serif);font-weight:400;font-size:18px;margin:0;color:#eaf4fa}
-.bar .sub{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);letter-spacing:.1em}
-.bar .grow{flex:1}
 
-button, .btn{
-  font-family:var(--mono);font-size:12px;cursor:pointer;
-  min-height:36px;padding:0 13px;border-radius:7px;
-  background:#12222a;color:var(--cyan);border:1px solid #24505e;
-}
-button:hover{background:#173139;border-color:var(--cyan)}
-button.amber{background:#241c10;color:var(--amber);border-color:#5a4520}
-button.amber:hover{border-color:var(--amber)}
-button.ghost{background:transparent;color:var(--ink-dim);border-color:var(--line)}
-button.ghost:hover{border-color:var(--ink-faint);color:var(--ink-dim)}
-button.active{background:#0d2a35;color:var(--cyan);border-color:var(--cyan)}
-button.dim{opacity:.45}
+/* BAR SCORE */
+.score-wrap { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.score-val { font-family: var(--f-mono); font-size: 12.5px; font-variant-numeric: tabular-nums; min-width: 46px; text-align: right; }
+.bar-track { width: 60px; height: 5px; background: #161b22; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+.bar-fill { height: 100%; border-radius: 3px; }
 
-.stats{font-family:var(--mono);font-size:12px;color:var(--ink-dim)}
-.stats span{margin-right:16px}
-.stats strong{color:var(--amber)}
+/* RADAR */
+.radar-section { padding: 40px 20px; border-top: 1px solid var(--line); }
+.radar-section h2 { font-family: var(--f-serif); font-weight: 400; font-size: clamp(22px, 3.5vw, 34px); color: #eaf4fa; margin-bottom: 6px; }
+.radar-section p { color: var(--dim); font-size: 15px; margin-bottom: 20px; }
+.radar-picks { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 22px; }
+.radar-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.radar-card { background: var(--plate); padding: 18px 20px 20px; }
+.radar-card h4 { font-family: var(--f-serif); font-weight: 400; font-size: 18px; color: #eaf4fa; margin-bottom: 2px; }
+.radar-card .rc-vendor { font-family: var(--f-mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 14px; }
+.rc-bars { display: grid; gap: 9px; margin-top: 16px; }
+.rc-row { display: flex; align-items: center; gap: 8px; }
+.rc-label { font-family: var(--f-mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); width: 72px; flex-shrink: 0; }
+.rc-track { flex: 1; height: 6px; background: #161b22; border-radius: 3px; overflow: hidden; }
+.rc-fill { height: 100%; border-radius: 3px; }
+.rc-val { font-family: var(--f-mono); font-size: 11px; color: var(--dim); min-width: 44px; text-align: right; }
 
-/* ── TABLE ── */
-.table-wrap{overflow-x:auto;margin-top:16px}
-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
-thead tr{border-bottom:2px solid var(--line)}
-th{
-  text-align:left;padding:9px 13px;white-space:nowrap;
-  font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--ink-faint);cursor:pointer;user-select:none;
-  font-weight:500;
-}
-th:hover{color:var(--cyan)}
-th .arrow{margin-left:4px;opacity:.4;font-size:10px}
-th.asc .arrow{opacity:1;color:var(--cyan)}
-th.desc .arrow{opacity:1;color:var(--cyan)}
-th.num,td.num{text-align:right}
-th.odd{color:var(--ink-dim)}
-td{padding:9px 13px;border-bottom:1px solid #111418;vertical-align:middle}
-td.num{font-variant-numeric:tabular-nums;color:var(--ink-dim)}
-td.bold{font-weight:600}
-tr:hover td{background:#0d1117}
-tr.best td{background:#0a1a1f}
-td.pill{
-  font-size:10px;letter-spacing:.1em;text-transform:uppercase;
-  padding:3px 9px;border-radius:999px;display:inline-block;
-  border:1px solid currentColor;
-}
-.pill-gpt{color:#6fcf97;border-color:#2d5a3d}
-.pill-claude{color:#c4a7ff;border-color:#3d3060}
-.pill-gemini{color:#7deaff;border-color:#1d4653}
-.pill-llama{color:#f0bc5f;border-color:#3d3420}
-.pill-other{color:#9dabb7;border-color:#2a3040}
+/* COST */
+.cost-section { padding: 40px 20px; border-top: 1px solid var(--line); }
+.cost-section h2 { font-family: var(--f-serif); font-weight: 400; font-size: clamp(22px, 3.5vw, 34px); color: #eaf4fa; margin-bottom: 6px; }
+.cost-section p { color: var(--dim); font-size: 15px; margin-bottom: 20px; }
+.cost-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.cost-card { background: var(--plate); padding: 16px 18px; }
+.cost-card .cc-name { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; margin-bottom: 8px; }
+.cost-card .cc-price { font-family: var(--f-serif); font-size: 26px; color: #eaf4fa; line-height: 1.1; }
+.cost-card .cc-unit { font-family: var(--f-mono); font-size: 10px; color: var(--faint); margin-top: 3px; }
+.cost-card .cc-out { font-family: var(--f-mono); font-size: 11px; color: var(--dim); margin-top: 6px; }
+.cost-card .cc-speed { font-family: var(--f-mono); font-size: 10px; color: var(--faint); margin-top: 3px; }
 
-.vendor-gpt td:first-child::before{content:'';display:inline-block;width:3px;height:14px;background:#6fcf97;border-radius:2px;margin-right:8px;vertical-align:middle}
-.vendor-claude td:first-child::before{content:'';display:inline-block;width:3px;height:14px;background:#c4a7ff;border-radius:2px;margin-right:8px;vertical-align:middle}
-.vendor-gemini td:first-child::before{content:'';display:inline-block;width:3px;height:14px;background:#7deaff;border-radius:2px;margin-right:8px;vertical-align:middle}
-.vendor-llama td:first-child::before{content:'';display:inline-block;width:3px;height:14px;background:#f0bc5f;border-radius:2px;margin-right:8px;vertical-align:middle}
+/* WHY */
+.why-section { padding: 40px 20px; border-top: 1px solid var(--line); max-width: 800px; }
+.why-section h2 { font-family: var(--f-serif); font-weight: 400; font-size: clamp(22px, 3.5vw, 34px); color: #eaf4fa; margin-bottom: 16px; }
+.why-section p { color: var(--dim); font-size: 14px; line-height: 1.65; margin-bottom: 12px; max-width: 68ch; }
+.why-section b { color: var(--ink); font-weight: 600; }
 
-.score-cell{display:flex;align-items:center;gap:8px}
-.score-bar{flex:1;height:5px;background:#12171d;border-radius:3px;overflow:hidden;min-width:50px}
-.score-fill{height:100%;border-radius:3px}
-
-/* ── RADAR ── */
-.radar-section{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
-@media(max-width:900px){.radar-section{grid-template-columns:1fr}}
-.radar-card{background:var(--plate);padding:20px 22px}
-.radar-card h4{font-family:var(--serif);font-weight:400;font-size:20px;margin:0 0 4px;color:#eaf4fa}
-.radar-card .vendor{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:16px}
-canvas.radar{display:block;margin:0 auto}
-
-/* ── COST TABLE ── */
-.cost-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:14px}
-.cost-card{background:var(--plate);padding:16px 18px}
-.cost-card h5{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint);margin:0 0 8px;font-weight:500}
-.cost-card .price{font-family:var(--serif);font-size:28px;color:#eaf4fa;line-height:1}
-.cost-card .unit{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);margin-top:3px}
-.cost-card .note{font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin-top:5px}
-
-/* ── PHILOSOPHY ── */
-.honesty{
-  font-size:14px;color:var(--ink-dim);max-width:72ch;line-height:1.6;
-  margin:0;
-}
-.honesty b{color:var(--ink);font-weight:600}
-
-/* ── FOOTER ── */
-footer{padding:36px 0 60px;color:var(--ink-faint);font-size:13.5px}
-footer .links{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:14px}
-footer a{color:var(--ink-dim);border-bottom-color:#2a3040}
-
-.hidden{display:none!important}
+footer { padding: 32px 20px 60px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13px; }
 </style>
 </head>
 <body>
 
-<header>
-  <h1>BENCHMARK</h1>
-  <span class="sub">honest AI model scores · no composite index</span>
-  <span class="grow"></span>
-  <span class="pill">public data · Sep 2026</span>
-</header>
+<nav>
+  <span class="nav-title">BENCHMARK</span>
+  <span class="nav-sub">honest AI scores · no composite index</span>
+  <span class="spacer"></span>
+  <span class="chip">Sep 2026</span>
+</nav>
 
-<!-- ── HERO ── -->
-<div class="wrap hero">
-  <p class="eyebrow">What it is</p>
-  <h2>Raw scores. Every benchmark.<br>No mystery math.</h2>
-  <p class="lede">Artificial Analysis builds a single weighted composite to rank models. This isn't that.
-    Every score below is the reported public benchmark, linked to its source. Sort by any column.
-    Build your own opinion.</p>
+<div class="hero">
+  <div class="eyebrow">What this is</div>
+  <h1>Raw scores. Every benchmark.<br>No mystery math.</h1>
+  <p>Artificial Analysis collapses 10 evals into one number with weights you can't see. This isn't that. Every score below is the reported public benchmark. Sort by the column that matters for you.</p>
 </div>
 
-<!-- ── INTELLIGENCE TABLE ── -->
-<section>
-  <div class="wrap">
-    <div class="bar">
-      <h3>Intelligence Benchmarks</h3>
-      <span class="sub">higher is better · % unless noted</span>
-      <span class="grow"></span>
-      <div class="stats">
-        <span><strong id="t-models">15</strong> models</span>
-        <span><strong>5</strong> benchmarks</span>
-        <span><strong>0</strong> composite scores</span>
-      </div>
-    </div>
+<div class="controls">
+  <span class="label">Filter:</span>
+  <button class="on" onclick="filterVendor('all',this)">All</button>
+  <button onclick="filterVendor('Anthropic',this)">Anthropic</button>
+  <button onclick="filterVendor('OpenAI',this)">OpenAI</button>
+  <button onclick="filterVendor('Google',this)">Google</button>
+  <button onclick="filterVendor('Meta',this)">Meta</button>
+  <button onclick="filterVendor('Other',this)">Other</button>
+</div>
 
-    <div class="table-wrap">
-      <table id="tbl">
-        <thead>
-          <tr>
-            <th class="sticky-col" onclick="sortTable('name')">Model <span class="arrow">↕</span></th>
-            <th class="odd num" onclick="sortTable('vendor')">Vendor</th>
-            <th class="num" onclick="sortTable('mmlu')">MMLU <span class="arrow">↕</span></th>
-            <th class="num" onclick="sortTable('math')">MATH <span class="arrow">↕</span></th>
-            <th class="num" onclick="sortTable('humaneval')">HumanEval <span class="arrow">↕</span></th>
-            <th class="num" onclick="sortTable('gpqa')">GPQA <span class="arrow">↕</span></th>
-            <th class="num" onclick="sortTable('agentic')">Agentic <span class="arrow">↕</span></th>
-            <th class="num" onclick="sortTable('price_in')" style="color:var(--amber)">$/M in <span class="arrow">↕</span></th>
-            <th class="num" onclick="sortTable('price_out')" style="color:var(--amber)">$/M out <span class="arrow">↕</span></th>
-            <th class="num" onclick="sortTable('speed')" style="color:var(--cyan)">tok/s <span class="arrow">↕</span></th>
-          </tr>
-        </thead>
-        <tbody id="tbl-body"></tbody>
-      </table>
-    </div>
-  </div>
-</section>
+<div class="table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th onclick="doSort('name')">Model <span id="arr-name"></span></th>
+        <th onclick="doSort('vendor')">Vendor <span id="arr-vendor"></span></th>
+        <th class="r sorted" onclick="doSort('mmlu')">MMLU <span id="arr-mmlu">↓</span></th>
+        <th class="r" onclick="doSort('math')">MATH <span id="arr-math"></span></th>
+        <th class="r" onclick="doSort('humaneval')">HumanEval <span id="arr-humaneval"></span></th>
+        <th class="r" onclick="doSort('gpqa')">GPQA <span id="arr-gpqa"></span></th>
+        <th class="r" onclick="doSort('agentic')">Agentic <span id="arr-agentic"></span></th>
+        <th class="r" onclick="doSort('price_in')" style="color:var(--amber)">$/M in <span id="arr-price_in"></span></th>
+        <th class="r" onclick="doSort('price_out')" style="color:var(--amber)">$/M out <span id="arr-price_out"></span></th>
+        <th class="r" onclick="doSort('speed')" style="color:var(--cyan)">tok/s <span id="arr-speed"></span></th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+</div>
 
-<!-- ── RADAR ── -->
-<section>
-  <div class="wrap">
-    <p class="eyebrow">Radar — pick your axes</p>
-    <h2 style="font-size:clamp(22px,3.5vw,34px);margin-bottom:6px">How you weigh it is your call.</h2>
-    <p class="lede" style="margin-bottom:0">No composite. Click any model to compare it against the field on 5 benchmarks.</p>
-    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;margin-bottom:18px" id="radar-buttons"></div>
-    <div class="radar-section" id="radar-area"></div>
-  </div>
-</section>
+<div class="radar-section">
+  <div class="eyebrow">Radar</div>
+  <h2>How you weigh it is your call.</h2>
+  <p>Click any model in the table to add it to the radar. Up to 4 at once.</p>
+  <div class="radar-picks" id="radar-picks"></div>
+  <div class="radar-grid" id="radar-grid"></div>
+</div>
 
-<!-- ── COST ── -->
-<section>
-  <div class="wrap">
-    <p class="eyebrow">Input / Output pricing</p>
-    <h2 style="font-size:clamp(22px,3.5vw,34px);margin-bottom:6px">Cost per million tokens.</h2>
-    <p class="lede" style="margin-bottom:0">Prices from public provider API docs. USD. Lower is better.</p>
-    <div class="cost-grid" id="cost-grid"></div>
-  </div>
-</section>
+<div class="cost-section">
+  <div class="eyebrow">Pricing</div>
+  <h2>Cost per million tokens.</h2>
+  <p>From public provider API docs. Sorted cheapest input first.</p>
+  <div class="cost-grid" id="cost-grid"></div>
+</div>
 
-<!-- ── PHILOSOPHY ── -->
-<section>
-  <div class="wrap">
-    <p class="eyebrow">Why this exists</p>
-    <h2 style="font-size:clamp(22px,3.5vw,34px);margin-bottom:16px">The composite score is the product.</h2>
-    <p class="honesty">Most AI leaderboards take 5–10 benchmarks, weight them by a secret formula, and produce one number. That number is useful for press releases and placement on a list. It is not useful for understanding <em>what a model actually does well</em>.</p>
-    <p class="honesty" style="margin-top:14px">This page shows every benchmark in its own column. Sort by the one that matters for your use case. If you want a composite, you can build one — weight GPQA heavily if you're a researcher, HumanEval if you're shipping code, MMLU if you just want general knowledge. Your weights, your model.</p>
-    <p class="honesty" style="margin-top:14px">Sources: MMLU reported by model providers. MATH / HumanEval from official evals. GPQA from papers. Agentic scores from AA Intelligence Index v4.3 (Elo-500)/2000. Pricing from OpenAI, Anthropic, Google, Meta public API docs. Speed from provider benchmarks.</p>
-  </div>
-</section>
+<div class="why-section">
+  <div class="eyebrow">Why this exists</div>
+  <h2>The composite score is the product.</h2>
+  <p>Most AI leaderboards take 5–10 benchmarks, weight them by a secret formula, and produce one number. That number is useful for press releases. It is not useful for understanding <em>what a model actually does well</em>.</p>
+  <p>This page shows every benchmark in its own column. Sort by the one that matters for your use case. If you're shipping code, sort by HumanEval. Researcher? Sort GPQA. Just want general knowledge? MMLU. <b>Your weights, your model.</b></p>
+  <p>Sources: MMLU, MATH, HumanEval, GPQA from published evals and provider cards. Agentic from AA Intelligence Index v4.3. Pricing from public API docs. Speed from provider benchmarks. Sep 2026.</p>
+</div>
 
-<!-- ── FOOTER ── -->
 <footer>
-  <div class="wrap">
-    <div class="links">
-      <a href="https://github.com/fruitflydev/flycoinrh">flycoinrh</a>
-      <a href="https://artificialanalysis.ai">Artificial Analysis</a>
-      <a href="https://openai.com">OpenAI</a>
-      <a href="https://anthropic.com">Anthropic</a>
-      <a href="https://ai.google.dev">Google</a>
-      <a href="https://llama.meta.com">Meta</a>
-    </div>
-    <div>Data from public benchmarks and provider docs · Sep 2026 · No composite score was harmed in making this page</div>
-  </div>
+  Data from public benchmarks and provider docs · No composite score was harmed · Sep 2026
 </footer>
 
 <script>
-// ─────────────────────────────────────────────
-// MODEL DATA — public benchmarks, Sep 2026
-// ─────────────────────────────────────────────
-const NA = null;
-const MODELS = [
-  {
-    name: "Claude 4 Sonnet",
-    vendor: "Anthropic",
-    pill: "pill-claude",
-    mmlu: 90.4,
-    math: 81.3,
-    humaneval: 92.1,
-    gpqa: 65.2,
-    agentic: 0.847,
-    price_in: 3.00,
-    price_out: 15.00,
-    speed: 89,
-    ctx: 200000,
-  },
-  {
-    name: "Claude 4 Opus",
-    vendor: "Anthropic",
-    pill: "pill-claude",
-    mmlu: 91.2,
-    math: 83.7,
-    humaneval: 93.4,
-    gpqa: 68.1,
-    agentic: 0.872,
-    price_in: 15.00,
-    price_out: 75.00,
-    speed: 67,
-    ctx: 200000,
-  },
-  {
-    name: "GPT-4.5",
-    vendor: "OpenAI",
-    pill: "pill-gpt",
-    mmlu: 87.8,
-    math: 76.4,
-    humaneval: 88.3,
-    gpqa: 58.9,
-    agentic: 0.811,
-    price_in: 75.00,
-    price_out: 150.00,
-    speed: 142,
-    ctx: 128000,
-  },
-  {
-    name: "GPT-4o",
-    vendor: "OpenAI",
-    pill: "pill-gpt",
-    mmlu: 88.7,
-    math: 76.6,
-    humaneval: 90.2,
-    gpqa: 53.4,
-    agentic: 0.798,
-    price_in: 2.50,
-    price_out: 10.00,
-    speed: 165,
-    ctx: 128000,
-  },
-  {
-    name: "o3 (high)",
-    vendor: "OpenAI",
-    pill: "pill-gpt",
-    mmlu: 91.1,
-    math: 87.7,
-    humaneval: null,
-    gpqa: 72.4,
-    agentic: 0.903,
-    price_in: 15.00,
-    price_out: 60.00,
-    speed: 48,
-    ctx: 200000,
-  },
-  {
-    name: "o4-mini (high)",
-    vendor: "OpenAI",
-    pill: "pill-gpt",
-    mmlu: 88.2,
-    math: 82.1,
-    humaneval: 95.1,
-    gpqa: 61.3,
-    agentic: 0.854,
-    price_in: 1.10,
-    price_out: 4.40,
-    speed: 210,
-    ctx: 100000,
-  },
-  {
-    name: "Gemini 2.5 Pro",
-    vendor: "Google",
-    pill: "pill-gemini",
-    mmlu: 89.8,
-    math: 79.4,
-    humaneval: 88.7,
-    gpqa: 62.1,
-    agentic: 0.869,
-    price_in: 0.35,
-    price_out: 1.75,
-    speed: 104,
-    ctx: 1000000,
-  },
-  {
-    name: "Gemini 2.0 Flash",
-    vendor: "Google",
-    pill: "pill-gemini",
-    mmlu: 86.4,
-    math: 72.8,
-    humaneval: 84.3,
-    gpqa: 51.7,
-    agentic: 0.779,
-    price_in: 0.10,
-    price_out: 0.40,
-    speed: 380,
-    ctx: 1000000,
-  },
-  {
-    name: "Llama 4 Scout",
-    vendor: "Meta",
-    pill: "pill-llama",
-    mmlu: 86.1,
-    math: 73.9,
-    humaneval: 82.7,
-    gpqa: 48.2,
-    agentic: 0.741,
-    price_in: 0.40,
-    price_out: 2.00,
-    speed: 195,
-    ctx: 10000000,
-  },
-  {
-    name: "Llama 4 Maverick",
-    vendor: "Meta",
-    pill: "pill-llama",
-    mmlu: 84.3,
-    math: 70.1,
-    humaneval: 80.4,
-    gpqa: 44.8,
-    agentic: 0.718,
-    price_in: 0.20,
-    price_out: 0.80,
-    speed: 280,
-    ctx: 1000000,
-  },
-  {
-    name: "DeepSeek V3",
-    vendor: "DeepSeek",
-    pill: "pill-other",
-    mmlu: 88.5,
-    math: 79.2,
-    humaneval: 90.1,
-    gpqa: 57.3,
-    agentic: 0.792,
-    price_in: 0.27,
-    price_out: 1.10,
-    speed: 118,
-    ctx: 64000,
-  },
-  {
-    name: "Grok 3",
-    vendor: "xAI",
-    pill: "pill-other",
-    mmlu: 87.2,
-    math: 75.8,
-    humaneval: 87.6,
-    gpqa: 54.1,
-    agentic: 0.801,
-    price_in: 5.00,
-    price_out: 15.00,
-    speed: 132,
-    ctx: 131072,
-  },
-  {
-    name: "Mistral Large",
-    vendor: "Mistral",
-    pill: "pill-other",
-    mmlu: 85.7,
-    math: 71.4,
-    humaneval: 83.2,
-    gpqa: 47.9,
-    agentic: 0.738,
-    price_in: 1.00,
-    price_out: 3.00,
-    speed: 96,
-    ctx: 128000,
-  },
-  {
-    name: "Qwen 3 32B",
-    vendor: "Alibaba",
-    pill: "pill-other",
-    mmlu: 86.9,
-    math: 74.6,
-    humaneval: 85.8,
-    gpqa: 50.3,
-    agentic: 0.761,
-    price_in: 0.50,
-    price_out: 1.50,
-    speed: 145,
-    ctx: 32000,
-  },
-  {
-    name: "o1 (preview)",
-    vendor: "OpenAI",
-    pill: "pill-gpt",
-    mmlu: 89.1,
-    math: 85.4,
-    humaneval: 91.8,
-    gpqa: 71.8,
-    agentic: 0.881,
-    price_in: 15.00,
-    price_out: 60.00,
-    speed: 41,
-    ctx: 128000,
-  },
+var MODELS = [
+  { name:"Claude Sonnet 4",   vendor:"Anthropic", mmlu:90.4, math:81.3, humaneval:92.1, gpqa:65.2, agentic:84.7, price_in:3.00,   price_out:15.00,  speed:89,  ctx:"200K" },
+  { name:"Claude Opus 4",     vendor:"Anthropic", mmlu:91.2, math:83.7, humaneval:93.4, gpqa:68.1, agentic:87.2, price_in:15.00,  price_out:75.00,  speed:67,  ctx:"200K" },
+  { name:"GPT-4.5",           vendor:"OpenAI",    mmlu:87.8, math:76.4, humaneval:88.3, gpqa:58.9, agentic:81.1, price_in:75.00,  price_out:150.00, speed:142, ctx:"128K" },
+  { name:"GPT-4o",            vendor:"OpenAI",    mmlu:88.7, math:76.6, humaneval:90.2, gpqa:53.4, agentic:79.8, price_in:2.50,   price_out:10.00,  speed:165, ctx:"128K" },
+  { name:"o3 (high)",         vendor:"OpenAI",    mmlu:91.1, math:87.7, humaneval:null,  gpqa:72.4, agentic:90.3, price_in:15.00,  price_out:60.00,  speed:48,  ctx:"200K" },
+  { name:"o4-mini (high)",    vendor:"OpenAI",    mmlu:88.2, math:82.1, humaneval:95.1, gpqa:61.3, agentic:85.4, price_in:1.10,   price_out:4.40,   speed:210, ctx:"100K" },
+  { name:"o1",                vendor:"OpenAI",    mmlu:89.1, math:85.4, humaneval:91.8, gpqa:71.8, agentic:88.1, price_in:15.00,  price_out:60.00,  speed:41,  ctx:"128K" },
+  { name:"Gemini 2.5 Pro",    vendor:"Google",    mmlu:89.8, math:79.4, humaneval:88.7, gpqa:62.1, agentic:86.9, price_in:0.35,   price_out:1.75,   speed:104, ctx:"1M"   },
+  { name:"Gemini 2.0 Flash",  vendor:"Google",    mmlu:86.4, math:72.8, humaneval:84.3, gpqa:51.7, agentic:77.9, price_in:0.10,   price_out:0.40,   speed:380, ctx:"1M"   },
+  { name:"Llama 4 Scout",     vendor:"Meta",      mmlu:86.1, math:73.9, humaneval:82.7, gpqa:48.2, agentic:74.1, price_in:0.40,   price_out:2.00,   speed:195, ctx:"10M"  },
+  { name:"Llama 4 Maverick",  vendor:"Meta",      mmlu:84.3, math:70.1, humaneval:80.4, gpqa:44.8, agentic:71.8, price_in:0.20,   price_out:0.80,   speed:280, ctx:"1M"   },
+  { name:"DeepSeek V3",       vendor:"DeepSeek",  mmlu:88.5, math:79.2, humaneval:90.1, gpqa:57.3, agentic:79.2, price_in:0.27,   price_out:1.10,   speed:118, ctx:"64K"  },
+  { name:"Grok 3",            vendor:"xAI",       mmlu:87.2, math:75.8, humaneval:87.6, gpqa:54.1, agentic:80.1, price_in:5.00,   price_out:15.00,  speed:132, ctx:"131K" },
+  { name:"Mistral Large",     vendor:"Mistral",   mmlu:85.7, math:71.4, humaneval:83.2, gpqa:47.9, agentic:73.8, price_in:1.00,   price_out:3.00,   speed:96,  ctx:"128K" },
+  { name:"Qwen 3 32B",        vendor:"Alibaba",   mmlu:86.9, math:74.6, humaneval:85.8, gpqa:50.3, agentic:76.1, price_in:0.50,   price_out:1.50,   speed:145, ctx:"32K"  },
 ];
 
-const BENCHMARKS = ['mmlu','math','humaneval','gpqa','agentic'];
-const BENCH_LABELS = { mmlu:'MMLU', math:'MATH', humaneval:'HumanEval', gpqa:'GPQA', agentic:'Agentic' };
-const BENCH_MAX = { mmlu:100, math:100, humaneval:100, gpqa:100, agentic:1 };
-
-const VENDOR_COLORS = {
-  Anthropic: '#c4a7ff',
-  OpenAI: '#6fcf97',
-  Google: '#7deaff',
-  Meta: '#f0bc5f',
-  DeepSeek: '#9dabb7',
-  xAI: '#ff8b7a',
-  Mistral: '#9dabb7',
-  Alibaba: '#9dabb7',
+var VENDOR_COLORS = {
+  Anthropic:"#c4a7ff", OpenAI:"#6fdca6", Google:"#7deaff",
+  Meta:"#f0bc5f", DeepSeek:"#9dabb7", xAI:"#ff8b7a",
+  Mistral:"#9dabb7", Alibaba:"#9dabb7"
 };
 
-// ─────────────────────────────────────────────
-// TABLE RENDERING
-// ─────────────────────────────────────────────
-let sortKey = 'name';
-let sortDir = 'asc';
+var BENCHMARKS = [
+  { key:"mmlu",      label:"MMLU",      max:100 },
+  { key:"math",      label:"MATH",      max:100 },
+  { key:"humaneval", label:"HumanEval", max:100 },
+  { key:"gpqa",      label:"GPQA",      max:100 },
+  { key:"agentic",   label:"Agentic",   max:100 },
+];
 
-function sortTable(key) {
-  if (sortKey === key) {
-    sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-  } else {
-    sortKey = key;
-    sortDir = 'desc';
-  }
+var sortKey = "mmlu";
+var sortAsc = false;
+var vendorFilter = "all";
+var radarSet = ["Claude Sonnet 4", "GPT-4o", "Gemini 2.5 Pro"];
+
+function scoreColor(pct) {
+  if (pct >= 0.88) return "#6fdca6";
+  if (pct >= 0.75) return "#7deaff";
+  if (pct >= 0.60) return "#f0bc5f";
+  return "#ff8b7a";
+}
+
+function fmtScore(v, key) {
+  if (v === null || v === undefined) return "—";
+  if (key === "agentic") return v.toFixed(1) + "%";
+  return v.toFixed(1) + "%";
+}
+
+function fmtPrice(v) {
+  if (v >= 10) return "$" + v.toFixed(0);
+  if (v >= 1)  return "$" + v.toFixed(2);
+  return "$" + v.toFixed(2);
+}
+
+function doSort(key) {
+  if (sortKey === key) { sortAsc = !sortAsc; }
+  else { sortKey = key; sortAsc = false; }
   renderTable();
 }
 
-function getVal(m, k) {
-  const v = m[k];
-  return v === null || v === undefined || v === NA ? -Infinity : v;
-}
-
-function fmt(v, key) {
-  if (v === -Infinity) return '—';
-  if (key === 'agentic') return (v * 100).toFixed(1) + '%';
-  if (key === 'speed') return v.toLocaleString();
-  if (key === 'price_in' || key === 'price_out') return '$' + v;
-  if (key === 'ctx') {
-    if (v >= 1000000) return (v/1000000).toFixed(0) + 'M';
-    return (v/1000).toFixed(0) + 'K';
-  }
-  return v.toFixed(1) + '%';
-}
-
-function scoreColor(v, key, max) {
-  const pct = v / max;
-  if (pct >= 0.9) return '#6fdca6';
-  if (pct >= 0.75) return '#7deaff';
-  if (pct >= 0.6) return '#f0bc5f';
-  return '#ff8b7a';
-}
-
-function renderTable() {
-  const sorted = [...MODELS].sort((a, b) => {
-    const va = getVal(a, sortKey);
-    const vb = getVal(b, sortKey);
-    if (va === -Infinity && vb === -Infinity) return 0;
-    if (va === -Infinity) return 1;
-    if (vb === -Infinity) return -1;
-    const cmp = typeof va === 'string' ? va.localeCompare(vb) : va - vb;
-    return sortDir === 'asc' ? cmp : -cmp;
-  });
-
-  // Update header arrows
-  document.querySelectorAll('th').forEach(th => th.classList.remove('asc','desc'));
-  const headers = document.querySelectorAll('th');
-  headers.forEach(th => {
-    if (th.textContent.includes(BENCH_LABELS[sortKey] || sortKey)) {
-      th.classList.add(sortDir === 'asc' ? 'asc' : 'desc');
-    }
-  });
-
-  const tbody = document.getElementById('tbl-body');
-  tbody.innerHTML = '';
-  for (const m of sorted) {
-    const tr = document.createElement('tr');
-    const vendorClass = `vendor-${m.vendor.toLowerCase().replace(' ','')}`;
-
-    let cells = `<td><strong>${m.name}</strong></td>`;
-    cells += `<td><span class="pill ${m.pill}">${m.vendor}</span></td>`;
-
-    for (const b of BENCHMARKS) {
-      const v = m[b];
-      const max = BENCH_MAX[b];
-      const pct = v !== NA && v !== null && v !== undefined ? (v / max) : null;
-      const fillColor = pct !== null ? scoreColor(v, b, max) : '#333';
-      const displayVal = v !== NA && v !== null && v !== undefined ? fmt(v, b) : '—';
-      cells += `<td class="num">`;
-      if (pct !== null) {
-        cells += `<div class="score-cell">`;
-        cells += `<span style="min-width:44px;text-align:right">${displayVal}</span>`;
-        cells += `<div class="score-bar"><div class="score-fill" style="width:${(pct*100).toFixed(1)}%;background:${fillColor}"></div></div>`;
-        cells += `</div>`;
-      } else {
-        cells += displayVal;
-      }
-      cells += `</td>`;
-    }
-
-    // Price columns
-    cells += `<td class="num" style="color:var(--amber)">$${m.price_in}</td>`;
-    cells += `<td class="num" style="color:var(--amber)">$${m.price_out}</td>`;
-    cells += `<td class="num" style="color:var(--cyan)">${m.speed.toLocaleString()}</td>`;
-
-    tr.innerHTML = cells;
-    tr.className = vendorClass;
-    tr.style.cursor = 'pointer';
-    tr.onclick = () => showRadar(m.name);
-    tbody.appendChild(tr);
-  }
-}
-
-// ─────────────────────────────────────────────
-// RADAR CHART
-// ─────────────────────────────────────────────
-let radarModels = ['Claude 4 Sonnet', 'GPT-4o', 'Gemini 2.5 Pro'];
-
-function showRadar(name) {
-  if (!radarModels.includes(name)) {
-    radarModels = radarModels.slice(0, 3);
-    radarModels[2] = name;
-  }
-  renderRadar();
-  document.getElementById('radar-area').scrollIntoView({behavior:'smooth'});
-}
-
-function renderRadar() {
-  const area = document.getElementById('radar-area');
-  const models = MODELS.filter(m => radarModels.includes(m.name));
-
-  area.innerHTML = models.map(m => `
-    <div class="radar-card">
-      <h4>${m.name}</h4>
-      <div class="vendor" style="color:${VENDOR_COLORS[m.vendor] || '#9dabb7'}">${m.vendor}</div>
-      <canvas class="radar" width="260" height="260" id="canvas-${m.name.replace(/[^a-z0-9]/gi,'')}"></canvas>
-      <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
-        ${BENCHMARKS.map(b => {
-          const v = m[b];
-          const max = BENCH_MAX[b];
-          const pct = v !== NA && v !== null ? v / max : 0;
-          return `<div>
-            <div class="k" style="margin-bottom:3px">${BENCH_LABELS[b]}</div>
-            <div class="score-bar" style="height:7px">
-              <div class="score-fill" style="width:${(pct*100).toFixed(1)}%;background:${scoreColor(v,b,max)}"></div>
-            </div>
-            <div style="font-family:var(--mono);font-size:11px;color:var(--ink-dim);margin-top:2px">${v !== NA && v !== null ? fmt(v,b) : '—'}</div>
-          </div>`;
-        }).join('')}
-      </div>
-    </div>
-  `).join('');
-
-  models.forEach(m => drawRadar(m));
-
-  // Update buttons
-  document.getElementById('radar-buttons').innerHTML = MODELS.map(m =>
-    `<button class="${radarModels.includes(m.name) ? 'active' : ''}"
-      onclick="toggleRadar('${m.name}')" style="font-size:11px">${m.name}</button>`
-  ).join('');
+function filterVendor(v, btn) {
+  vendorFilter = v;
+  document.querySelectorAll(".controls button").forEach(function(b){ b.classList.remove("on"); });
+  btn.classList.add("on");
+  renderTable();
 }
 
 function toggleRadar(name) {
-  if (radarModels.includes(name)) {
-    if (radarModels.length > 1) radarModels = radarModels.filter(n => n !== name);
+  var idx = radarSet.indexOf(name);
+  if (idx !== -1) {
+    radarSet.splice(idx, 1);
   } else {
-    radarModels.push(name);
-    if (radarModels.length > 4) radarModels.shift();
+    if (radarSet.length >= 4) radarSet.shift();
+    radarSet.push(name);
   }
   renderRadar();
 }
 
-function drawRadar(model) {
-  const cid = `canvas-${model.name.replace(/[^a-z0-9]/gi,'')}`;
-  const c = document.getElementById(cid);
-  if (!c) return;
-  const g = c.getContext('2d');
-  const W = c.width, H = c.height;
-  const cx = W / 2, cy = H / 2;
-  const R = Math.min(W, H) * 0.38;
+function renderTable() {
+  var data = MODELS.slice();
 
-  g.clearRect(0, 0, W, H);
-
-  const N = BENCHMARKS.length;
-  const angleStep = (Math.PI * 2) / N;
-  const startAngle = -Math.PI / 2;
-
-  // Grid rings
-  for (let r = 1; r <= 4; r++) {
-    g.beginPath();
-    for (let i = 0; i <= N; i++) {
-      const a = startAngle + i * angleStep;
-      const rr = (r / 4) * R;
-      const px = cx + rr * Math.cos(a), py = cy + rr * Math.sin(a);
-      i === 0 ? g.moveTo(px, py) : g.lineTo(px, py);
-    }
-    g.strokeStyle = r === 4 ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)';
-    g.lineWidth = r === 4 ? 1.5 : 1;
-    g.stroke();
+  // filter
+  if (vendorFilter !== "all") {
+    var others = ["DeepSeek","xAI","Mistral","Alibaba"];
+    data = data.filter(function(m) {
+      if (vendorFilter === "Other") return others.indexOf(m.vendor) !== -1;
+      return m.vendor === vendorFilter;
+    });
   }
 
-  // Axis lines + labels
-  BENCHMARKS.forEach((b, i) => {
-    const a = startAngle + i * angleStep;
-    const px = cx + R * Math.cos(a), py = cy + R * Math.sin(a);
-    g.beginPath();
-    g.moveTo(cx, cy);
-    g.lineTo(px, py);
-    g.strokeStyle = 'rgba(255,255,255,0.1)';
-    g.lineWidth = 1;
-    g.stroke();
-
-    // Label
-    const lx = cx + (R + 18) * Math.cos(a);
-    const ly = cy + (R + 18) * Math.sin(a);
-    g.fillStyle = '#75828d';
-    g.font = '9.5px IBM Plex Mono, monospace';
-    g.textAlign = 'center';
-    g.textBaseline = 'middle';
-    g.fillText(BENCH_LABELS[b], lx, ly);
+  // sort
+  data.sort(function(a, b) {
+    var va = a[sortKey], vb = b[sortKey];
+    if (va === null || va === undefined) va = sortAsc ? Infinity : -Infinity;
+    if (vb === null || vb === undefined) vb = sortAsc ? Infinity : -Infinity;
+    if (typeof va === "string") return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+    return sortAsc ? va - vb : vb - va;
   });
 
-  // Data polygon
-  const points = [];
-  BENCHMARKS.forEach((b, i) => {
-    const v = model[b];
-    const max = BENCH_MAX[b];
-    const val = v !== NA && v !== null ? v / max : 0;
-    const a = startAngle + i * angleStep;
-    const r = val * R;
-    points.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+  // update header arrows
+  var keys = ["name","vendor","mmlu","math","humaneval","gpqa","agentic","price_in","price_out","speed"];
+  keys.forEach(function(k) {
+    var el = document.getElementById("arr-" + k);
+    if (!el) return;
+    el.textContent = "";
+    el.parentElement.classList.remove("sorted");
+    if (k === sortKey) {
+      el.textContent = sortAsc ? "↑" : "↓";
+      el.parentElement.classList.add("sorted");
+    }
   });
 
-  // Fill
-  g.beginPath();
-  points.forEach(([px, py], i) => i === 0 ? g.moveTo(px, py) : g.lineTo(px, py));
-  g.closePath();
-  const color = VENDOR_COLORS[model.vendor] || '#9dabb7';
-  g.fillStyle = color.replace(')', ', 0.12)').replace('rgb', 'rgba');
-  g.fill();
+  var rows = data.map(function(m) {
+    var color = VENDOR_COLORS[m.vendor] || "#9dabb7";
+    var inRadar = radarSet.indexOf(m.name) !== -1;
 
-  // Stroke
-  g.beginPath();
-  points.forEach(([px, py], i) => i === 0 ? g.moveTo(px, py) : g.lineTo(px, py));
-  g.closePath();
-  g.strokeStyle = color;
-  g.lineWidth = 2;
-  g.stroke();
+    var cells = '<td><span class="model-name">' + m.name + '</span></td>';
+    cells += '<td><span class="vendor-tag" style="color:' + color + ';border-color:' + color + '33">' + m.vendor + '</span></td>';
 
-  // Dots
-  points.forEach(([px, py]) => {
-    g.beginPath();
-    g.arc(px, py, 3.5, 0, Math.PI * 2);
-    g.fillStyle = color;
-    g.fill();
+    BENCHMARKS.forEach(function(b) {
+      var v = m[b.key];
+      if (v === null || v === undefined) {
+        cells += '<td class="r">—</td>';
+      } else {
+        var pct = v / b.max;
+        var fc = scoreColor(pct);
+        cells += '<td class="r"><div class="score-wrap">' +
+          '<span class="score-val" style="color:' + fc + '">' + v.toFixed(1) + '%</span>' +
+          '<div class="bar-track"><div class="bar-fill" style="width:' + (pct*100).toFixed(1) + '%;background:' + fc + '"></div></div>' +
+          '</div></td>';
+      }
+    });
+
+    cells += '<td class="r" style="color:var(--amber)">' + fmtPrice(m.price_in) + '</td>';
+    cells += '<td class="r" style="color:var(--amber)">' + fmtPrice(m.price_out) + '</td>';
+    cells += '<td class="r" style="color:var(--cyan)">' + m.speed + '</td>';
+
+    var rowStyle = inRadar ? 'background:#0a1520;' : '';
+    return '<tr style="cursor:pointer;' + rowStyle + '" onclick="toggleRadar(\'' + m.name.replace(/'/g,"\\'") + '\')">' + cells + '</tr>';
   });
+
+  document.getElementById("tbody").innerHTML = rows.join("");
 }
 
-// ─────────────────────────────────────────────
-// COST GRID
-// ─────────────────────────────────────────────
+function renderRadar() {
+  // Update pick buttons
+  var picks = document.getElementById("radar-picks");
+  picks.innerHTML = MODELS.map(function(m) {
+    var on = radarSet.indexOf(m.name) !== -1;
+    var color = VENDOR_COLORS[m.vendor] || "#9dabb7";
+    return '<button class="' + (on ? 'on' : '') + '" ' +
+      'style="' + (on ? 'border-color:' + color + ';color:' + color + ';background:#0d1520' : '') + '" ' +
+      'onclick="toggleRadar(\'' + m.name.replace(/'/g,"\\'") + '\')">' + m.name + '</button>';
+  }).join("");
+
+  // Render cards
+  var grid = document.getElementById("radar-grid");
+  var cards = radarSet.map(function(name) {
+    var m = MODELS.find(function(x){ return x.name === name; });
+    if (!m) return "";
+    var color = VENDOR_COLORS[m.vendor] || "#9dabb7";
+
+    var bars = BENCHMARKS.map(function(b) {
+      var v = m[b.key];
+      var pct = (v !== null && v !== undefined) ? v / b.max : 0;
+      var fc = scoreColor(pct);
+      var display = (v !== null && v !== undefined) ? v.toFixed(1) + "%" : "—";
+      return '<div class="rc-row">' +
+        '<span class="rc-label">' + b.label + '</span>' +
+        '<div class="rc-track"><div class="rc-fill" style="width:' + (pct*100).toFixed(1) + '%;background:' + fc + '"></div></div>' +
+        '<span class="rc-val">' + display + '</span>' +
+        '</div>';
+    }).join("");
+
+    return '<div class="radar-card">' +
+      '<h4>' + m.name + '</h4>' +
+      '<div class="rc-vendor" style="color:' + color + '">' + m.vendor + '</div>' +
+      '<div class="rc-bars">' + bars + '</div>' +
+      '<div style="margin-top:14px;font-family:var(--f-mono);font-size:11px;color:var(--faint)">' +
+        fmtPrice(m.price_in) + '/M in · ' + fmtPrice(m.price_out) + '/M out · ' + m.speed + ' tok/s · ' + m.ctx + ' ctx' +
+      '</div>' +
+      '</div>';
+  }).join("");
+
+  grid.innerHTML = cards || '<div style="padding:24px;color:var(--faint);font-family:var(--f-mono);font-size:12px">Click a model in the table or a button above to compare.</div>';
+}
+
 function renderCost() {
-  const grid = document.getElementById('cost-grid');
-  const sorted = [...MODELS].sort((a, b) => a.price_in - b.price_in);
-  grid.innerHTML = sorted.map(m => {
-    const color = VENDOR_COLORS[m.vendor] || '#9dabb7';
-    return `
-      <div class="cost-card">
-        <h5 style="color:${color}">${m.name}</h5>
-        <div class="price">$${m.price_in} <span style="font-size:14px;font-family:var(--mono);color:var(--ink-faint)">/ 1M in</span></div>
-        <div class="unit">$${m.price_out} / 1M output</div>
-        <div class="note">${m.speed} tok/sec · ${m.ctx >= 1000000 ? (m.ctx/1000000).toFixed(0)+'M' : (m.ctx/1000).toFixed(0)+'K'} ctx</div>
-      </div>`;
-  }).join('');
+  var sorted = MODELS.slice().sort(function(a,b){ return a.price_in - b.price_in; });
+  var cards = sorted.map(function(m) {
+    var color = VENDOR_COLORS[m.vendor] || "#9dabb7";
+    return '<div class="cost-card">' +
+      '<div class="cc-name" style="color:' + color + '">' + m.name + '</div>' +
+      '<div class="cc-price">' + fmtPrice(m.price_in) + '</div>' +
+      '<div class="cc-unit">per 1M input tokens</div>' +
+      '<div class="cc-out">' + fmtPrice(m.price_out) + ' / 1M output</div>' +
+      '<div class="cc-speed">' + m.speed + ' tok/s · ' + m.ctx + ' ctx</div>' +
+      '</div>';
+  }).join("");
+  document.getElementById("cost-grid").innerHTML = cards;
 }
 
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
+// BOOT
 renderTable();
 renderRadar();
 renderCost();
