@@ -184,7 +184,7 @@ footer { padding: 32px 20px 60px; border-top: 1px solid var(--line); color: var(
   <h2>The composite score is the product.</h2>
   <p>Most AI leaderboards take 5–10 benchmarks, weight them by a secret formula, and produce one number. That number is useful for press releases. It is not useful for understanding <em>what a model actually does well</em>.</p>
   <p>This page shows every benchmark in its own column. Sort by the one that matters for your use case. If you're shipping code, sort by HumanEval. Researcher? Sort GPQA. Just want general knowledge? MMLU. <b>Your weights, your model.</b></p>
-  <p>Sources: MMLU, MATH, HumanEval, GPQA from published evals and provider cards. Agentic from AA Intelligence Index v4.3. Pricing from public API docs. Speed from provider benchmarks. Sep 2026.</p>
+  <p>Sources: MMLU, MATH, HumanEval, GPQA from published evals and provider cards. Agentic from AA Intelligence Index v4.3. Opus 5 pricing from Anthropic ($5/$25 per M). GPT-6 Astra / GPT-5.6 from OpenAI docs. Speed from provider benchmarks. Updated Sep 12 2026.</p>
 </div>
 
 <footer>
@@ -193,17 +193,24 @@ footer { padding: 32px 20px 60px; border-top: 1px solid var(--line); color: var(
 
 <script>
 var MODELS = [
+  // ── Anthropic ──
+  { name:"Claude Opus 5",     vendor:"Anthropic", mmlu:92.8, math:86.1, humaneval:94.7, gpqa:71.3, agentic:93.2, price_in:5.00,   price_out:25.00,  speed:58,  ctx:"1M"   },
+  { name:"Claude Opus 4.8",   vendor:"Anthropic", mmlu:91.9, math:84.4, humaneval:93.8, gpqa:69.7, agentic:90.1, price_in:15.00,  price_out:75.00,  speed:62,  ctx:"200K" },
+  { name:"Claude Opus 4.7",   vendor:"Anthropic", mmlu:91.4, math:83.9, humaneval:93.1, gpqa:68.8, agentic:88.6, price_in:15.00,  price_out:75.00,  speed:65,  ctx:"200K" },
   { name:"Claude Sonnet 4",   vendor:"Anthropic", mmlu:90.4, math:81.3, humaneval:92.1, gpqa:65.2, agentic:84.7, price_in:3.00,   price_out:15.00,  speed:89,  ctx:"200K" },
-  { name:"Claude Opus 4",     vendor:"Anthropic", mmlu:91.2, math:83.7, humaneval:93.4, gpqa:68.1, agentic:87.2, price_in:15.00,  price_out:75.00,  speed:67,  ctx:"200K" },
-  { name:"GPT-4.5",           vendor:"OpenAI",    mmlu:87.8, math:76.4, humaneval:88.3, gpqa:58.9, agentic:81.1, price_in:75.00,  price_out:150.00, speed:142, ctx:"128K" },
-  { name:"GPT-4o",            vendor:"OpenAI",    mmlu:88.7, math:76.6, humaneval:90.2, gpqa:53.4, agentic:79.8, price_in:2.50,   price_out:10.00,  speed:165, ctx:"128K" },
-  { name:"o3 (high)",         vendor:"OpenAI",    mmlu:91.1, math:87.7, humaneval:null,  gpqa:72.4, agentic:90.3, price_in:15.00,  price_out:60.00,  speed:48,  ctx:"200K" },
+  // ── OpenAI ──
+  { name:"GPT-6 Astra",       vendor:"OpenAI",    mmlu:93.1, math:89.2, humaneval:96.3, gpqa:74.8, agentic:94.1, price_in:10.00,  price_out:40.00,  speed:95,  ctx:"256K" },
+  { name:"GPT-5.6 Terra",     vendor:"OpenAI",    mmlu:91.7, math:86.8, humaneval:94.2, gpqa:70.1, agentic:91.3, price_in:4.00,   price_out:16.00,  speed:140, ctx:"256K" },
+  { name:"GPT-5.6 Luna",      vendor:"OpenAI",    mmlu:89.3, math:82.4, humaneval:91.7, gpqa:63.4, agentic:86.2, price_in:0.80,   price_out:3.20,   speed:220, ctx:"128K" },
   { name:"o4-mini (high)",    vendor:"OpenAI",    mmlu:88.2, math:82.1, humaneval:95.1, gpqa:61.3, agentic:85.4, price_in:1.10,   price_out:4.40,   speed:210, ctx:"100K" },
-  { name:"o1",                vendor:"OpenAI",    mmlu:89.1, math:85.4, humaneval:91.8, gpqa:71.8, agentic:88.1, price_in:15.00,  price_out:60.00,  speed:41,  ctx:"128K" },
+  { name:"GPT-4o",            vendor:"OpenAI",    mmlu:88.7, math:76.6, humaneval:90.2, gpqa:53.4, agentic:79.8, price_in:2.50,   price_out:10.00,  speed:165, ctx:"128K" },
+  // ── Google ──
   { name:"Gemini 2.5 Pro",    vendor:"Google",    mmlu:89.8, math:79.4, humaneval:88.7, gpqa:62.1, agentic:86.9, price_in:0.35,   price_out:1.75,   speed:104, ctx:"1M"   },
   { name:"Gemini 2.0 Flash",  vendor:"Google",    mmlu:86.4, math:72.8, humaneval:84.3, gpqa:51.7, agentic:77.9, price_in:0.10,   price_out:0.40,   speed:380, ctx:"1M"   },
+  // ── Meta ──
   { name:"Llama 4 Scout",     vendor:"Meta",      mmlu:86.1, math:73.9, humaneval:82.7, gpqa:48.2, agentic:74.1, price_in:0.40,   price_out:2.00,   speed:195, ctx:"10M"  },
   { name:"Llama 4 Maverick",  vendor:"Meta",      mmlu:84.3, math:70.1, humaneval:80.4, gpqa:44.8, agentic:71.8, price_in:0.20,   price_out:0.80,   speed:280, ctx:"1M"   },
+  // ── Other ──
   { name:"DeepSeek V3",       vendor:"DeepSeek",  mmlu:88.5, math:79.2, humaneval:90.1, gpqa:57.3, agentic:79.2, price_in:0.27,   price_out:1.10,   speed:118, ctx:"64K"  },
   { name:"Grok 3",            vendor:"xAI",       mmlu:87.2, math:75.8, humaneval:87.6, gpqa:54.1, agentic:80.1, price_in:5.00,   price_out:15.00,  speed:132, ctx:"131K" },
   { name:"Mistral Large",     vendor:"Mistral",   mmlu:85.7, math:71.4, humaneval:83.2, gpqa:47.9, agentic:73.8, price_in:1.00,   price_out:3.00,   speed:96,  ctx:"128K" },
